@@ -1,0 +1,16 @@
+---
+engines:
+  fixme:
+    enabled: true
+  golint:
+    enabled: true
+    config:
+      min_confidence: 0.3
+  gofmt:
+    enabled: true
+  govet:
+    enabled: true
+ratings:
+  paths:
+    - "**.go"
+exclude_paths: []
