@@ -13,28 +13,25 @@ const (
 	uint32ByteSize = 4
 )
 
-// writeLengthPrefixedMessage writes a message to the supplied writer. It prefixes the message with a four byte little-endian representation of the size of the message. The total number of bytes written is returned, along with any error arising.
-func writeLengthPrefixedMessage(w io.Writer, pb proto.Message) (int, error) {
-	s := proto.Size(pb)
-	n := uint32(s)
-
-	err := binary.Write(w, binary.LittleEndian, n)
-	if nil != err {
-		return 0, err
-	}
-
-	b, err := proto.Marshal(pb)
-	if nil != err {
-		return 0, err
-	}
-
-	_, err = w.Write(b)
-	if nil != err {
-		return 0, err
-	}
-
-	return len(b) + uint32ByteSize, nil
-}
+// UnmarshalFunc is a type aliased function which is used to convert raw bytes to a protobuf message type.
+// It's intended use is mainly as a callback type (when needed) when performing operations on collections of protobuf types.
+// Implementing `UnmarshalFunc` is a straightforward operation.
+//
+//	// Foo is a protobuf unmarshaller
+//	type Foo struct {...}
+//	var f pbs.UnmarshalFunc = func (b []byte) (proto.Message, error){
+//		var foo Foo
+//		err := proto.Unmarshal(b, foo)
+//
+//		return foo, err
+//	}
+//
+// The UnmarshalFunc can then be supplied to the desired function which creates an array of `Foo` types from a stream of bytes.
+//
+//	var r io.Reader
+//	foos, err := pbs.ReadLengthPrefixedCollection(r, f)
+//
+type UnmarshalFunc func([]byte) (proto.Message, error)
 
 // MessageCollection encapsulates a collection of protobuf messages.
 type MessageCollection []proto.Message
@@ -60,6 +57,7 @@ func LengthPrefixedFramedSize(m proto.Message) int {
 // The write operation uses length-prefixed framing. This means that each protocol buffer message is prefixed
 // by its length. This implementation encodes the length as a four byte little-endian field, representing an unsigned 32 bit integer.
 // The total number of bytes (including prefixes) written to the buffer is returned, along with any error arising.
+// For more detailed information on this approach, see the official protocol buffer documentation https://developers.google.com/protocol-buffers/docs/techniques#streaming.
 func WriteLengthPrefixedCollection(w io.Writer, pbs MessageCollection) (n int, err error) {
 	for _, pb := range pbs {
 		i, err := writeLengthPrefixedMessage(w, pb)
@@ -73,30 +71,34 @@ func WriteLengthPrefixedCollection(w io.Writer, pbs MessageCollection) (n int, e
 	return n, nil
 }
 
-// UnmarshalFunc is a type aliased function which is used to convert raw bytes to a protobuf message type.
-// It's intended use is mainly as a callback type (when needed) when performing operations on collections of protobuf types.
-// Implementing `UnmarshalFunc` is a straightforward operation.
-//
-//	// Foo is a protobuf unmarshaller
-//	type Foo struct {...}
-//	var f pbs.UnmarshalFunc = func (b []byte) (proto.Message, error){
-//		var foo Foo
-//		err := proto.Unmarshal(b, foo)
-//
-//		return foo, err
-//	}
-//
-// The UnmarshalFunc can then be supplied to the desired function which creates an array of `Foo` types from a stream of bytes.
-//
-//	var r io.Reader
-//	foos, err := pbs.ReadLengthPrefixedCollection(r, f)
-//
-type UnmarshalFunc func([]byte) (proto.Message, error)
+// writeLengthPrefixedMessage writes a message to the supplied writer. It prefixes the message with a four byte little-endian representation of the size of the message. The total number of bytes written is returned, along with any error arising.
+func writeLengthPrefixedMessage(w io.Writer, pb proto.Message) (int, error) {
+	s := proto.Size(pb)
+	n := uint32(s)
+
+	err := binary.Write(w, binary.LittleEndian, n)
+	if nil != err {
+		return 0, err
+	}
+
+	b, err := proto.Marshal(pb)
+	if nil != err {
+		return 0, err
+	}
+
+	_, err = w.Write(b)
+	if nil != err {
+		return 0, err
+	}
+
+	return len(b) + uint32ByteSize, nil
+}
 
 // ReadLengthPrefixedCollection reads a collection of protocol buffer messages from the supplied reader.
 // Each message is presumed prefixed by a 4 byte little-endian field (an unsigned 32 bit integer) which represents the size of the ensuing message.
 // The UnmarshalFunc argument is a supplied callback used to convert the raw bytes read as a message to the desired message type.
 // The protocol buffer message collection is returned, along with any error arising.
+// For more detailed information on this approach, see the official protocol buffer documentation https://developers.google.com/protocol-buffers/docs/techniques#streaming.
 func ReadLengthPrefixedCollection(r io.Reader, f UnmarshalFunc) (pbs MessageCollection, err error) {
 	for {
 		var s uint32
