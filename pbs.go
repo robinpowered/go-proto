@@ -53,6 +53,39 @@ func LengthPrefixedFramedSize(m proto.Message) int {
 	return uint32ByteSize + proto.Size(m)
 }
 
+// ReadLengthPrefixedCollection reads a collection of protocol buffer messages from the supplied reader.
+// Each message is presumed prefixed by a 4 byte little-endian field (an unsigned 32 bit integer) which represents the size of the ensuing message.
+// The UnmarshalFunc argument is a supplied callback used to convert the raw bytes read as a message to the desired message type.
+// The protocol buffer message collection is returned, along with any error arising.
+// For more detailed information on this approach, see the official protocol buffer documentation https://developers.google.com/protocol-buffers/docs/techniques#streaming.
+func ReadLengthPrefixedCollection(r io.Reader, f UnmarshalFunc) (pbs MessageCollection, err error) {
+	for {
+		var s uint32
+		err := binary.Read(r, binary.LittleEndian, &s)
+		if io.EOF == err {
+			return pbs, nil
+		} else if nil != err {
+			return nil, err
+		}
+
+		b := make([]byte, s)
+
+		_, err = io.ReadFull(r, b)
+		if io.EOF == err {
+			return pbs, nil
+		} else if nil != err {
+			return nil, err
+		}
+
+		pb, err := f(b)
+		if nil != err {
+			return nil, err
+		}
+
+		pbs = append(pbs, pb)
+	}
+}
+
 // WriteLengthPrefixedCollection writes the collection of protobuf messages to the supplied writer.
 // The write operation uses length-prefixed framing. This means that each protocol buffer message is prefixed
 // by its length. This implementation encodes the length as a four byte little-endian field, representing an unsigned 32 bit integer.
@@ -92,37 +125,4 @@ func WriteLengthPrefixedMessage(w io.Writer, pb proto.Message) (int, error) {
 	}
 
 	return len(b) + uint32ByteSize, nil
-}
-
-// ReadLengthPrefixedCollection reads a collection of protocol buffer messages from the supplied reader.
-// Each message is presumed prefixed by a 4 byte little-endian field (an unsigned 32 bit integer) which represents the size of the ensuing message.
-// The UnmarshalFunc argument is a supplied callback used to convert the raw bytes read as a message to the desired message type.
-// The protocol buffer message collection is returned, along with any error arising.
-// For more detailed information on this approach, see the official protocol buffer documentation https://developers.google.com/protocol-buffers/docs/techniques#streaming.
-func ReadLengthPrefixedCollection(r io.Reader, f UnmarshalFunc) (pbs MessageCollection, err error) {
-	for {
-		var s uint32
-		err := binary.Read(r, binary.LittleEndian, &s)
-		if io.EOF == err {
-			return pbs, nil
-		} else if nil != err {
-			return nil, err
-		}
-
-		b := make([]byte, s)
-
-		_, err = io.ReadFull(r, b)
-		if io.EOF == err {
-			return pbs, nil
-		} else if nil != err {
-			return nil, err
-		}
-
-		pb, err := f(b)
-		if nil != err {
-			return nil, err
-		}
-
-		pbs = append(pbs, pb)
-	}
 }

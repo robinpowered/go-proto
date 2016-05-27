@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/mcos/protobuf-collections/mock"
+	"github.com/robinpowered/protobuf-collections/mock"
 	"github.com/stretchr/testify/assert"
 )
 
