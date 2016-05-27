@@ -1,12 +1,13 @@
-# Protocol Buffer Collections
+# Go-Proto
 
 [![GoDoc](https://godoc.org/github.com/robinpowered/go-proto?status.svg)](https://godoc.org/github.com/robinpowered/go-proto)
+[![Build Status](https://travis-ci.org/robinpowered/go-proto.svg?branch=master)](https://travis-ci.org/robinpowered/go-proto)
 
 A `Go` library providing support for operations on protocol buffer messages. Check out the documentation for more
 information: https://godoc.org/github.com/robinpowered/go-proto
 
 ## Install
-`go get -u github.com/robinpowered/protobuf-collections`
+`go get -u github.com/robinpowered/go-proto`
 
 ## License
 
