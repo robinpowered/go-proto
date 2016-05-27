@@ -1,6 +1,6 @@
 # Protocol Buffer Collections
 
-[![GoDoc](https://godoc.org/github.com/mcos/protobuf-collections/pbs?status.svg)](https://godoc.org/github.com/mcos/protobuf-collections/pbs)
+[![GoDoc](https://godoc.org/github.com/mcos/protobuf-collections?status.svg)](https://godoc.org/github.com/mcos/protobuf-collections)
 
 A `Go` library providing support for operations on collections of protocol buffer messages.
 
