@@ -12,7 +12,7 @@ information: https://godoc.org/github.com/robinpowered/go-proto
 
 ## License
 
-**protobuf-collections** is licensed under the [Apache License, Version 2.0][license-file].
+**go-proto** is licensed under the [Apache License, Version 2.0][license-file].
 
 --------------------------------------------------------------------------------
 
