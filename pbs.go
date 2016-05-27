@@ -60,7 +60,7 @@ func LengthPrefixedFramedSize(m proto.Message) int {
 // For more detailed information on this approach, see the official protocol buffer documentation https://developers.google.com/protocol-buffers/docs/techniques#streaming.
 func WriteLengthPrefixedCollection(w io.Writer, pbs MessageCollection) (n int, err error) {
 	for _, pb := range pbs {
-		i, err := writeLengthPrefixedMessage(w, pb)
+		i, err := WriteLengthPrefixedMessage(w, pb)
 		if nil != err {
 			return n, err
 		}
@@ -71,8 +71,8 @@ func WriteLengthPrefixedCollection(w io.Writer, pbs MessageCollection) (n int, e
 	return n, nil
 }
 
-// writeLengthPrefixedMessage writes a message to the supplied writer. It prefixes the message with a four byte little-endian representation of the size of the message. The total number of bytes written is returned, along with any error arising.
-func writeLengthPrefixedMessage(w io.Writer, pb proto.Message) (int, error) {
+// WriteLengthPrefixedMessage writes a message to the supplied writer. It prefixes the message with a four byte little-endian representation of the size of the message. The total number of bytes written is returned, along with any error arising.
+func WriteLengthPrefixedMessage(w io.Writer, pb proto.Message) (int, error) {
 	s := proto.Size(pb)
 	n := uint32(s)
 

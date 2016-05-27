@@ -38,7 +38,7 @@ func TestWriteLengthPrefixedMessage(t *testing.T) {
 
 	pb := &mock.Message{Name: "Single Message"}
 
-	n, err := writeLengthPrefixedMessage(buf, pb)
+	n, err := WriteLengthPrefixedMessage(buf, pb)
 
 	assert.Equal(t, n, LengthPrefixedFramedSize(pb), "they should be equal")
 	assert.Nil(t, err)
