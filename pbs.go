@@ -55,6 +55,22 @@ func WriteLengthPrefixedCollection(w io.Writer, pbs []proto.Message) (n int, err
 
 // UnmarshalFunc is a type aliased function which is used to convert raw bytes to a protobuf message type.
 // It's intended use is mainly as a callback type (when needed) when performing operations on collections of protobuf types.
+// Implementing `UnmarshalFunc` is a straightforward operation.
+//
+//	// Foo is a protobuf unmarshaller
+//	type Foo struct {...}
+//	var f pbs.UnmarshalFunc = func (b []byte) (proto.Message, error){
+//		var foo Foo
+//		err := proto.Unmarshal(b, foo)
+//
+//		return foo, err
+//	}
+//
+// The UnmarshalFunc can then be supplied to the desired function which creates an array of `Foo` types from a stream of bytes.
+//
+//	var r io.Reader
+//	foos, err := pbs.ReadLengthPrefixedCollection(r, f)
+//
 type UnmarshalFunc func([]byte) (proto.Message, error)
 
 // ReadLengthPrefixedCollection reads a collection of protocol buffer messages from the supplied reader.
