@@ -1,56 +1,33 @@
-// Package pbs provides utility methods and operations with may be performed on collections, or data representing collections (such as a binary stream) of protocol buffers.
-package pbs
+package stream
 
 import (
 	"encoding/binary"
 	"io"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/robinpowered/go-proto/collection"
+	"github.com/robinpowered/go-proto/message"
 )
 
-const (
-	// uint32ByteSize is the size, in bytes of an unsigned 32-bit integer.
-	uint32ByteSize = 4
-)
+// messageLengthPrefixByteSize is the size, in bytes, of the length prefix to use when employing length-prefix message framing. This prefix is an
+// unsigned 32 bit integer, so it's always 4.
+const messageLengthPrefixByteSize = 4
 
-// UnmarshalFunc is a type aliased function which is used to convert raw bytes to a protobuf message type.
-// It's intended use is mainly as a callback type (when needed) when performing operations on collections of protobuf types.
-// Implementing `UnmarshalFunc` is a straightforward operation.
-//
-//	// Foo is a protobuf unmarshaller
-//	type Foo struct {...}
-//	var f pbs.UnmarshalFunc = func (b []byte) (proto.Message, error){
-//		var foo Foo
-//		err := proto.Unmarshal(b, foo)
-//
-//		return foo, err
-//	}
-//
-// The UnmarshalFunc can then be supplied to the desired function which creates an array of `Foo` types from a stream of bytes.
-//
-//	var r io.Reader
-//	foos, err := pbs.ReadLengthPrefixedCollection(r, f)
-//
-type UnmarshalFunc func([]byte) (proto.Message, error)
-
-// MessageCollection encapsulates a collection of protobuf messages.
-type MessageCollection []proto.Message
-
-// LengthPrefixFramedSize calculates the size of the expected stream produced when encoding this collection using length prefixed framing.
+// LengthPrefixFramedCollectionSize calculates the size of the expected stream produced when encoding this collection using length prefixed framing.
 // The implementation assumes a four byte length prefix field, representing an unsigned 32 bit integer.
-func (mc MessageCollection) LengthPrefixFramedSize() (n int) {
+func LengthPrefixFramedCollectionSize(mc collection.MessageCollection) (n int) {
 	for _, m := range mc {
-		n += LengthPrefixedFramedSize(m)
+		n += LengthPrefixFramedMessageSize(m)
 	}
 
 	return n
 }
 
-// LengthPrefixedFramedSize calculates the expected total size of a length-prefixed framed protobuf message within a stream.
+// LengthPrefixFramedMessageSize calculates the expected total size of a length-prefixed framed protobuf message within a stream.
 // It performs a simple addition of the length of the prefix field and the protobuf message size.
 // The implementation assumes a four byte length prefix field, representing an unsigned 32 bit integer.
-func LengthPrefixedFramedSize(m proto.Message) int {
-	return uint32ByteSize + proto.Size(m)
+func LengthPrefixFramedMessageSize(m proto.Message) int {
+	return messageLengthPrefixByteSize + proto.Size(m)
 }
 
 // ReadLengthPrefixedCollection reads a collection of protocol buffer messages from the supplied reader.
@@ -58,7 +35,7 @@ func LengthPrefixedFramedSize(m proto.Message) int {
 // The UnmarshalFunc argument is a supplied callback used to convert the raw bytes read as a message to the desired message type.
 // The protocol buffer message collection is returned, along with any error arising.
 // For more detailed information on this approach, see the official protocol buffer documentation https://developers.google.com/protocol-buffers/docs/techniques#streaming.
-func ReadLengthPrefixedCollection(r io.Reader, f UnmarshalFunc) (pbs MessageCollection, err error) {
+func ReadLengthPrefixedCollection(r io.Reader, f message.UnmarshalFunc) (pbs collection.MessageCollection, err error) {
 	for {
 		var s uint32
 		err := binary.Read(r, binary.LittleEndian, &s)
@@ -91,7 +68,7 @@ func ReadLengthPrefixedCollection(r io.Reader, f UnmarshalFunc) (pbs MessageColl
 // by its length. This implementation encodes the length as a four byte little-endian field, representing an unsigned 32 bit integer.
 // The total number of bytes (including prefixes) written to the buffer is returned, along with any error arising.
 // For more detailed information on this approach, see the official protocol buffer documentation https://developers.google.com/protocol-buffers/docs/techniques#streaming.
-func WriteLengthPrefixedCollection(w io.Writer, pbs MessageCollection) (n int, err error) {
+func WriteLengthPrefixedCollection(w io.Writer, pbs collection.MessageCollection) (n int, err error) {
 	for _, pb := range pbs {
 		i, err := WriteLengthPrefixedMessage(w, pb)
 		if nil != err {
@@ -124,5 +101,5 @@ func WriteLengthPrefixedMessage(w io.Writer, pb proto.Message) (int, error) {
 		return 0, err
 	}
 
-	return len(b) + uint32ByteSize, nil
+	return LengthPrefixFramedMessageSize(pb), nil
 }

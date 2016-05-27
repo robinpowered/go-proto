@@ -1,16 +1,12 @@
 # Protocol Buffer Collections
 
-[![GoDoc](https://godoc.org/github.com/robinpowered/protobuf-collections?status.svg)](https://godoc.org/github.com/robinpowered/protobuf-collections)
+[![GoDoc](https://godoc.org/github.com/robinpowered/go-proto?status.svg)](https://godoc.org/github.com/robinpowered/go-proto)
 
-A `Go` library providing support for operations on collections of protocol buffer messages.
+A `Go` library providing support for operations on protocol buffer messages. Check out the documentation for more
+information: https://godoc.org/github.com/robinpowered/go-proto
 
 ## Install
 `go get -u github.com/robinpowered/protobuf-collections`
-
-## Length-Prefix Frame Streaming
-The initial use case provides functions for reading and writing message collections using a
-length-prefixed framing technique, as discussed in the [Streaming Multiple Messages](https://developers.google.com/protocol-buffers/docs/techniques#streaming)
-of the official documentation.
 
 ## License
 

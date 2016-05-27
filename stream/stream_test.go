@@ -1,22 +1,24 @@
-package pbs
+package stream
 
 import (
 	"bytes"
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/robinpowered/protobuf-collections/mock"
+	"github.com/robinpowered/go-proto/collection"
+	"github.com/robinpowered/go-proto/message"
+	"github.com/robinpowered/go-proto/mock"
 	"github.com/stretchr/testify/assert"
 )
 
 var (
-	mockMessages = MessageCollection{
+	mockMessages = collection.MessageCollection{
 		&mock.Message{Name: "Foo"},
 		&mock.Message{Name: "Bar"},
 		&mock.Message{Name: "Baz"},
 	}
 
-	mockUnmarshalFunc UnmarshalFunc = func(b []byte) (proto.Message, error) {
+	mockUnmarshalFunc message.UnmarshalFunc = func(b []byte) (proto.Message, error) {
 		var m mock.Message
 		err := proto.Unmarshal(b, &m)
 
@@ -27,10 +29,10 @@ var (
 func TestLengthPrefixFramedSize(t *testing.T) {
 	s := 0
 	for _, m := range mockMessages {
-		s += LengthPrefixedFramedSize(m)
+		s += LengthPrefixFramedMessageSize(m)
 	}
 
-	assert.Equal(t, s, mockMessages.LengthPrefixFramedSize(), "they should be equal")
+	assert.Equal(t, s, LengthPrefixFramedCollectionSize(mockMessages), "they should be equal")
 }
 
 func TestWriteLengthPrefixedMessage(t *testing.T) {
@@ -40,7 +42,7 @@ func TestWriteLengthPrefixedMessage(t *testing.T) {
 
 	n, err := WriteLengthPrefixedMessage(buf, pb)
 
-	assert.Equal(t, n, LengthPrefixedFramedSize(pb), "they should be equal")
+	assert.Equal(t, n, LengthPrefixFramedMessageSize(pb), "they should be equal")
 	assert.Nil(t, err)
 }
 
@@ -50,7 +52,7 @@ func TestWriteLengthPrefixedCollection(t *testing.T) {
 	n, err := WriteLengthPrefixedCollection(buf, mockMessages)
 
 	assert.Equal(t, n, buf.Len(), "they should be equal")
-	assert.Equal(t, n, mockMessages.LengthPrefixFramedSize(), "they should be equal")
+	assert.Equal(t, n, LengthPrefixFramedCollectionSize(mockMessages), "they should be equal")
 	assert.Nil(t, err)
 }
 
@@ -62,7 +64,7 @@ func TestWriteLengthPrefixedCollectionFails(t *testing.T) {
 	n, err := WriteLengthPrefixedCollection(buf, mockMessages)
 
 	assert.NotEqual(t, n, buf.Len(), "they should not be equal")
-	assert.NotEqual(t, buf.Len(), mockMessages.LengthPrefixFramedSize(), "they should not be equal")
+	assert.NotEqual(t, buf.Len(), LengthPrefixFramedCollectionSize(mockMessages), "they should not be equal")
 	assert.Nil(t, err)
 }
 
