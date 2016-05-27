@@ -1,11 +1,11 @@
 # Protocol Buffer Collections
 
-[![GoDoc](https://godoc.org/github.com/mcos/protobuf-collections?status.svg)](https://godoc.org/github.com/mcos/protobuf-collections)
+[![GoDoc](https://godoc.org/github.com/robinpowered/protobuf-collections?status.svg)](https://godoc.org/github.com/robinpowered/protobuf-collections)
 
 A `Go` library providing support for operations on collections of protocol buffer messages.
 
 ## Install
-`go get -u github.com/mcos/protobuf-collections`
+`go get -u github.com/robinpowered/protobuf-collections`
 
 ## Length-Prefix Frame Streaming
 The initial use case provides functions for reading and writing message collections using a
