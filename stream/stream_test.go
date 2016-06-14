@@ -94,8 +94,7 @@ func TestReadLengthPrefixedCollectionFails(t *testing.T) {
 
 	_, _ = buf.Write([]byte("This string messes up the decoding"))
 
-	pbs, err := ReadLengthPrefixedCollection(buf, mockUnmarshalFunc)
+	_, err = ReadLengthPrefixedCollection(buf, mockUnmarshalFunc)
 
-	assert.NotEqual(t, len(pbs), len(mockMessages))
 	assert.NotNil(t, err)
 }
