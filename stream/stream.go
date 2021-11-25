@@ -71,20 +71,21 @@ func ReadLengthPrefixedCollection(r io.Reader, f message.UnmarshalFunc) (pbs col
 			// see if a varint can be decoded already.
 			messageLength, varIntBytes = binary.Uvarint(prefixBuf[:bytesRead])
 		}
+		if messageLength > 0 {
+			messageBuf := make([]byte, messageLength)
+			newBytesRead, err := io.ReadFull(r, messageBuf)
+			bytesRead += newBytesRead
+			if err != nil {
+				return pbs, err
+			}
 
-		messageBuf := make([]byte, messageLength)
-		newBytesRead, err := io.ReadFull(r, messageBuf)
-		bytesRead += newBytesRead
-		if err != nil {
-			return pbs, err
+			pb, err := f(messageBuf)
+			if nil != err {
+				return nil, err
+			}
+
+			pbs = append(pbs, pb)
 		}
-
-		pb, err := f(messageBuf)
-		if nil != err {
-			return nil, err
-		}
-
-		pbs = append(pbs, pb)
 	}
 }
 
