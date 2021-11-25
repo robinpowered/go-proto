@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/robinpowered/go-proto/collection"
 	"github.com/robinpowered/go-proto/message"
+	"google.golang.org/protobuf/proto"
 )
 
 // LengthPrefixFramedCollectionSize calculates the size of the expected stream produced when encoding this collection using length prefixed framing.
@@ -69,7 +69,7 @@ func ReadLengthPrefixedCollection(r io.Reader, f message.UnmarshalFunc) (pbs col
 			bytesRead += newBytesRead
 			// Now present everything read so far to the varint decoder and
 			// see if a varint can be decoded already.
-			messageLength, varIntBytes = proto.DecodeVarint(prefixBuf[:bytesRead])
+			messageLength, varIntBytes = binary.Uvarint(prefixBuf[:bytesRead])
 		}
 
 		messageBuf := make([]byte, messageLength)

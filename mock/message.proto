@@ -1,6 +1,7 @@
 syntax = 'proto3';
 
 package mock;
+option go_package = "github.com/robinpowered/go-proto/mock";
 
 message Message {
   string name = 1;

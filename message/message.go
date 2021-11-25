@@ -1,14 +1,14 @@
 // Package message provides utilities for operating directly on or with protobuf message types.
 package message
 
-import "github.com/golang/protobuf/proto"
+import "google.golang.org/protobuf/proto"
 
 // UnmarshalFunc is a type aliased function which is used to convert raw bytes to a protobuf message type.
 // It's intended use is mainly as a callback type (when needed) when performing operations on collections of protobuf types.
 // Implementing `UnmarshalFunc` is a straightforward operation.
 //
 //	import "io"
-//	import "github.com/golang/protobuf/proto"
+//  import "google.golang.org/protobuf/proto"
 //	import "github.com/robinpowered/go-proto/message"
 //	import "github.com/robinpowered/go-proto/stream"
 //

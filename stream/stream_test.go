@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/robinpowered/go-proto/collection"
 	"github.com/robinpowered/go-proto/message"
 	"github.com/robinpowered/go-proto/mock"
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/protobuf/proto"
 )
 
 var (
